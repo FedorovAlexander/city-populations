@@ -43,3 +43,6 @@ Thumbs.db
 
 #vscode
 .vscode
+
+#config from assets
+src/assets/config.ts
