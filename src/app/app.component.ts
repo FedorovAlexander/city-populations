@@ -29,9 +29,12 @@ export class AppComponent implements OnInit {
       container: 'map',
       style: 'mapbox://styles/mapbox/dark-v10',
       zoom: 5,
-      center: [0, 0],
+      center: [25.2849, 54.6894],
       pitch: 80,
-      bearing: 160,
+    });
+
+    this.map.on('error', (error) => {
+      console.error('Map error:', error);
     });
   }
 
@@ -49,9 +52,8 @@ export class AppComponent implements OnInit {
       this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
 
       this.map.setFog({
-        range: [0.8, 8],
-        color: '#dc9f9f',
-        'horizon-blend': 0.5,
+        range: [1, 20],
+        color: 'lightblue',
         'high-color': '#245bde',
         'space-color': '#000000',
         'star-intensity': 0.15,
@@ -73,9 +75,53 @@ export class AppComponent implements OnInit {
         type: 'circle',
         source: 'cities',
         paint: {
-          'circle-radius': 6,
-          'circle-color': '#B42222',
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['get', 'population'],
+            0,
+            0,
+            100000,
+            4,
+            500000,
+            8,
+            1000000,
+            10,
+            5000000,
+            14,
+            10000000,
+            18,
+            50000000,
+            22,
+          ],
+          'circle-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'population'],
+            0,
+            '#f1f075',
+            100000,
+            '#e55e5e',
+            500000,
+            '#cb2c3e',
+            1000000,
+            '#811c24',
+            5000000,
+            '#4a0c15',
+            10000000,
+            '#000000',
+            50000000,
+            '#000000',
+          ],
+          'circle-opacity': 0.8,
         },
+      });
+
+      //get feature of the source 'cities' and console.log it
+      this.map.on('click', 'cities', (e) => {
+        if (!e?.features) return;
+        const population = e?.features[0].properties;
+        console.log(population ? population['population'] : 'no population');
       });
     });
   }
