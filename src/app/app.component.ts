@@ -18,20 +18,50 @@ export class AppComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {
+    this.createMap();
+    this.initiateData();
+    this.initiateMapStyle();
+  }
+
+  createMap() {
     this.map = new mapboxgl.Map({
       accessToken: config.MAPBOX_ACCESS_TOKEN,
       container: 'map',
       style: 'mapbox://styles/mapbox/dark-v10',
-      zoom: 1,
-      center: [-77.042754, -12.046373],
+      zoom: 5,
+      center: [0, 0],
+      pitch: 80,
+      bearing: 160,
     });
-    this.initiateData();
+  }
+
+  initiateMapStyle() {
+    this.map.setProjection('globe');
+
+    this.map.on('style.load', () => {
+      this.map.addSource('mapbox-dem', {
+        type: 'raster-dem',
+        url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
+        tileSize: 512,
+        maxzoom: 14,
+      });
+
+      this.map.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 });
+
+      this.map.setFog({
+        range: [0.8, 8],
+        color: '#dc9f9f',
+        'horizon-blend': 0.5,
+        'high-color': '#245bde',
+        'space-color': '#000000',
+        'star-intensity': 0.15,
+      });
+    });
   }
 
   initiateData() {
     this.map.on('load', () => {
       console.log('initiateData');
-      //get data from assets/data/geonames-all-cities-with-a-population-1000@public.geojson
 
       this.map.addSource('cities', {
         type: 'geojson',
